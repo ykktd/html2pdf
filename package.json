@@ -1,10 +1,10 @@
 {
   "name": "html2pdf-tool",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Convert HTML files (with MathJax and Google Fonts) to PDF via Playwright",
   "type": "module",
   "bin": {
-    "html2pdf": "./src/index.js"
+    "html2pdf": "src/index.js"
   },
   "scripts": {
     "postinstall": "playwright install chromium"

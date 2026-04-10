@@ -1,13 +1,13 @@
 # html2pdf-tool
 
-Convert HTML files to PDF via Playwright (Chromium). Supports MathJax math rendering and Google Fonts.
+MathJax 数式・Google Fonts を含む HTML ファイルを、Playwright (Chromium) を使って PDF に変換する CLI ツールです。
 
-## Requirements
+## 必要な環境
 
-- Node.js 18 or later
-- Chromium is downloaded automatically on first run (~165 MB)
+- Node.js 18 以降
+- Chromium は初回実行時に自動ダウンロードされます（約 165 MB）
 
-## Install
+## インストール
 
 ```bash
 # npm
@@ -17,33 +17,33 @@ npm install -g html2pdf-tool
 pnpm add -g html2pdf-tool
 ```
 
-## Usage
+## 使い方
 
 ```bash
-# Basic: generates input.pdf in the same folder
+# 基本：同じフォルダに input.pdf が生成される
 html2pdf input.html
 
-# Specify output path
+# 出力先を指定
 html2pdf input.html -o ~/Documents/output.pdf
 ```
 
-## Run without installing
+## インストールなしで実行
 
 ```bash
 npx html2pdf-tool input.html
 ```
 
-## How it works
+## 仕組み
 
-1. Opens the HTML file in headless Chromium
-2. Waits for all network requests to finish (`networkidle`) — ensures Google Fonts load
-3. Waits for `MathJax.typesetPromise()` to complete if MathJax is present
-4. Exports to PDF (A4, with background colors/images)
+1. headless Chromium で HTML ファイルを開く
+2. すべてのネットワークリクエストが完了するまで待機（`networkidle`）― Google Fonts の読み込みを確実にする
+3. MathJax が含まれる場合は `MathJax.typesetPromise()` の完了を待機
+4. A4 サイズ・背景色あり で PDF に書き出す
 
-## Why not just use browser Print (Cmd+P)?
+## なぜブラウザの印刷（⌘+P）ではダメなのか
 
-The browser's built-in print dialog adds headers, footers, dates, and URLs to the page. This tool produces a clean PDF with none of that.
+ブラウザの印刷ダイアログを使うと、ヘッダー・フッター・日付・URL が付加されます。このツールを使えばそれらを含まないクリーンな PDF が生成されます。
 
-## License
+## ライセンス
 
 MIT
