@@ -1,4 +1,4 @@
-# html2pdf-tool
+# html2pdf
 
 MathJax 数式・Google Fonts を含む HTML ファイルを、Playwright (Chromium) を使って PDF に変換する CLI ツールです。
 
