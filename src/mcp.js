@@ -2,7 +2,7 @@
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { resolve, dirname, basename, extname, join } from 'path';
+import { resolve, join } from 'path';
 import { writeFileSync, readFileSync, unlinkSync } from 'fs';
 import { tmpdir } from 'os';
 import { z } from 'zod';
@@ -16,48 +16,43 @@ server.tool(
   {
     input_path:   z.string().optional().describe('変換する HTML ファイルの絶対パス（html_content と排他）'),
     html_content: z.string().optional().describe('HTML の文字列（input_path の代わりに指定可）'),
-    output_path:  z.string().optional().describe('出力先 PDF の絶対パス（省略時は input と同フォルダ）'),
+    output_path:  z.string().optional().describe('出力 PDF を保存したい場合の絶対パス（省略時は一時ファイルに書き出して返す）'),
   },
   async ({ input_path, html_content, output_path }) => {
     if (!input_path && !html_content) {
       throw new Error('input_path か html_content のどちらかを指定してください');
     }
 
-    let inputPath;
-    let tempFile = null;
+    const ts = Date.now();
+    const tempInput  = html_content ? join(tmpdir(), `html2pdf_${ts}.html`) : null;
+    const tempOutput = join(tmpdir(), `html2pdf_${ts}.pdf`);
+    const finalOutput = output_path ? resolve(output_path) : tempOutput;
 
     if (html_content) {
-      tempFile = join(tmpdir(), `html2pdf_${Date.now()}.html`);
-      writeFileSync(tempFile, html_content, 'utf8');
-      inputPath = tempFile;
-    } else {
-      inputPath = resolve(input_path);
+      writeFileSync(tempInput, html_content, 'utf8');
     }
 
-    const outputPath = output_path
-      ? resolve(output_path)
-      : resolve(dirname(inputPath), basename(inputPath, extname(inputPath)) + '.pdf');
+    const inputPath = tempInput ?? resolve(input_path);
 
     try {
-      await convertHtmlToPdf(inputPath, outputPath);
-      const pdfData = readFileSync(outputPath).toString('base64');
+      await convertHtmlToPdf(inputPath, finalOutput);
+      const pdfData = readFileSync(finalOutput).toString('base64');
       return {
         content: [
           {
             type: 'resource',
             resource: {
-              uri: `file://${outputPath}`,
+              uri: `file://${finalOutput}`,
               mimeType: 'application/pdf',
               blob: pdfData,
             },
           },
-          { type: 'text', text: `PDF を生成しました: ${outputPath}` },
+          { type: 'text', text: output_path ? `PDF を保存しました: ${finalOutput}` : 'PDF を生成しました（base64 で返却）' },
         ],
       };
     } finally {
-      if (tempFile) {
-        try { unlinkSync(tempFile); } catch {}
-      }
+      if (tempInput)  try { unlinkSync(tempInput); }  catch {}
+      if (!output_path) try { unlinkSync(tempOutput); } catch {}
     }
   }
 );
