@@ -34,20 +34,6 @@ html2pdf input.html
 html2pdf input.html -o ~/Documents/output.pdf
 ```
 
-## Claude デスクトップアプリと連携する
-
-グローバルインストール後、`~/Library/Application Support/Claude/claude_desktop_config.json` に以下を追記すると、Claude から直接 PDF 変換を呼び出せるようになります。
-
-```json
-{
-  "mcpServers": {
-    "html2pdf": {
-      "command": "html2pdf-mcp"
-    }
-  }
-}
-```
-
 ## 仕組み
 
 1. headless Chromium で HTML ファイルを開く
