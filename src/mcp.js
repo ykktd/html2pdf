@@ -3,7 +3,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { resolve, dirname, basename, extname, join } from 'path';
-import { writeFileSync, unlinkSync } from 'fs';
+import { writeFileSync, readFileSync, unlinkSync } from 'fs';
 import { tmpdir } from 'os';
 import { z } from 'zod';
 import { convertHtmlToPdf } from './convert.js';
@@ -39,8 +39,21 @@ server.tool(
       : resolve(dirname(inputPath), basename(inputPath, extname(inputPath)) + '.pdf');
 
     try {
-      const result = await convertHtmlToPdf(inputPath, outputPath);
-      return { content: [{ type: 'text', text: `PDF を生成しました: ${result}` }] };
+      await convertHtmlToPdf(inputPath, outputPath);
+      const pdfData = readFileSync(outputPath).toString('base64');
+      return {
+        content: [
+          {
+            type: 'resource',
+            resource: {
+              uri: `file://${outputPath}`,
+              mimeType: 'application/pdf',
+              blob: pdfData,
+            },
+          },
+          { type: 'text', text: `PDF を生成しました: ${outputPath}` },
+        ],
+      };
     } finally {
       if (tempFile) {
         try { unlinkSync(tempFile); } catch {}
